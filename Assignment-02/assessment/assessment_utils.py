@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import wandb
 
 # Please do no alter this file. That will make it harder to pass the assessment!
 class Classifier(nn.Module):
@@ -53,7 +54,38 @@ def print_loss(epoch, loss, is_train=True, is_debug=False):
     out_string = f"Epoch {epoch:3d} | {loss_type} Loss: {loss:2.4f}"
     print(out_string)
 
-def train_model(model, optimizer, loss_func, epochs, train_dataloader, valid_dataloader):
+def train_model(model, optimizer, loss_func, epochs, train_dataloader, valid_dataloader, 
+                wandb_project=None, wandb_name=None, wandb_config=None):
+    # Initialize W&B if project is provided
+    if wandb_project:
+        # Extract group and tags from config if provided
+        group = wandb_config.pop("group", None) if wandb_config else None
+        tags = wandb_config.pop("tags", None) if wandb_config else None
+        
+        config = {
+            "learning_rate": optimizer.param_groups[0]['lr'],
+            "architecture": wandb_config.get("architecture", "Model") if wandb_config else "Model",
+            "batch_size": train_dataloader.batch_size,
+            "epochs": epochs,
+            "optimizer": optimizer.__class__.__name__,
+            "scheduler": "ReduceLROnPlateau",
+            "num_params": sum(p.numel() for p in model.parameters() if p.requires_grad),
+        }
+        # Merge with any additional config provided
+        if wandb_config:
+            config.update(wandb_config)
+        
+        wandb.init(
+            project=wandb_project,
+            group=group,
+            name=wandb_name or "training_run",
+            tags=tags,
+            config=config
+        )
+    
+    # Create scheduler
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=1)
+    
     for epoch in range(epochs):
         model.train()
         train_loss = 0
@@ -74,3 +106,20 @@ def train_model(model, optimizer, loss_func, epochs, train_dataloader, valid_dat
             valid_loss += loss.item()
         valid_loss = valid_loss / (step + 1)
         print_loss(epoch, valid_loss, is_train=False)
+        
+        # Step the scheduler based on validation loss
+        scheduler.step(valid_loss)
+        current_lr = optimizer.param_groups[0]['lr']
+        
+        # Log to W&B if initialized
+        if wandb_project and wandb.run:
+            wandb.log({
+                "train/loss": train_loss,
+                "valid/loss": valid_loss,
+                "learning_rate": current_lr,
+                "epoch": epoch,
+            })
+    
+    # Finish W&B run if it was initialized
+    if wandb_project and wandb.run:
+        wandb.finish()
