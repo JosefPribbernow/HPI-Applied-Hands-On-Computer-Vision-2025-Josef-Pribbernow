@@ -3,3 +3,4 @@ Assignment Submissions for Applied Hands-On Computer Vision seminar at chair of 
 
 ### Assignments
 1. Assignment 01: Data Curation Lab 1 - MNIST
+2. Assignment 02: CILP Assessment: Multimodal Learning
