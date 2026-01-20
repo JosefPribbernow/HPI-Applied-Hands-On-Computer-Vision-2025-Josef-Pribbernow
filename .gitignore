@@ -5,6 +5,7 @@ Assignment-02/wandb/
 Assignment-02/hidden/
 Assignment-03/data/
 Assignment-03/wandb/
+Assignment-03/ddpm_clip_flowers.pth
 __pycache__/
 /data/
 download.zip
