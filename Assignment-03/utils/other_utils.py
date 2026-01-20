@@ -2,8 +2,8 @@ import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 from IPython.display import Image
 import torch
-# import torchvision
-# import torchvision.transforms as transforms
+import torchvision
+import torchvision.transforms as transforms
 from torch.utils.data import Dataset, DataLoader
 
 def save_animation(xs, gif_name, interval=300, repeat_delay=5000):

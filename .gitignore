@@ -3,6 +3,8 @@ Assignment-01/data/curated_mnist_export/
 Assignment-02/data/
 Assignment-02/wandb/
 Assignment-02/hidden/
+Assignment-03/data/
+Assignment-03/wandb/
 __pycache__/
 /data/
 download.zip
