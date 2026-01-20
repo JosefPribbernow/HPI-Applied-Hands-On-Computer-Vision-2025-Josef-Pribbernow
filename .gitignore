@@ -7,5 +7,7 @@ Assignment-03/data/
 Assignment-03/wandb/
 Assignment-03/ddpm_clip_flowers.pth
 __pycache__/
+poetry.lock
+.vscode/
 /data/
 download.zip
